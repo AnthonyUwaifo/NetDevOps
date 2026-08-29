@@ -1,0 +1,137 @@
+---
+- name: Get timestamp on localhost
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Set backup timestamp
+      set_fact:
+        backup_timestamp: "{{ ansible_date_time.date }}"
+        #backup_datetime: "{{ ansible_date_time.iso8601 }}"
+
+    - name: Create backup directory
+      file:
+        path: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}"
+        state: directory
+        mode: '0755'
+
+- name: Save and Backup Device Configurations
+  hosts: all
+  gather_facts: no
+  vars_files:
+  - ../inventory/group_vars/all/vault.yml
+
+  tasks:
+    - name: Get backup timestamp from localhost
+      set_fact:
+        backup_timestamp: "{{ hostvars['localhost']['backup_timestamp'] }}"
+
+    - name: Save running-config to startup-config
+      cisco.ios.ios_command:
+        commands:
+          - write memory
+
+
+    - name: Wait for save to complete
+      pause:
+        seconds: 5
+
+    - name: Retrieve running-config
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: running_config
+
+    - name: Save running-config to backup file
+      delegate_to: localhost
+      copy:
+        content: "{{ running_config.stdout[0] }}"
+        dest: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}/{{ inventory_hostname }}.cfg"
+        mode: '0644'
+
+    - name: Display backup status
+      debug:
+        msg: "✓ {{ inventory_hostname }} backed up"
+
+- name: Generate Backup Summary
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Count backup files
+      find:
+        paths: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}"
+        patterns: "*.cfg"
+      register: backup_files
+
+    - name: Get backup directory size
+      shell: du -sh ~/NetDevOps/ansible/backups/{{ backup_timestamp }}
+      register: backup_size
+
+    - name: Create backup inventory file
+      copy:
+        content: |
+          ================================================================================
+          NETWORK CONFIGURATION BACKUP
+          ================================================================================
+          Backup Timestamp: {{ backup_timestamp }}
+          Backup Directory: ~/NetDevOps/backups/{{ backup_timestamp }}/
+
+          DEVICES BACKED UP:
+          ==================
+          R1.cfg (10.175.2.1)
+          R2.cfg (10.175.2.2)
+          R3.cfg (10.175.2.3)
+          R4.cfg (10.175.2.4)
+          R5.cfg (10.175.2.5)
+
+          SUMMARY:
+          ========
+          Total Devices: 5
+          Total Files: {{ backup_files.matched }}
+          Backup Size: {{ backup_size.stdout.split()[0] }}
+
+          NOTES:
+          ======
+          - Running configs saved to startup-config on all devices
+          - All running configs backed up to Ansible server
+          - Files are named: {hostname}.cfg
+
+          USAGE:
+          ======
+          View a config:
+            cat ~/NetDevOps/ansbile/backups/{{ backup_timestamp }}/R3.cfg
+
+          Compare configs:
+            diff ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/R3.cfg                  ~/NetDevOps/ansible/backups/PREVIOUS_BACKUP/R3.cfg
+
+          Restore (manual):
+            scp ~/NetDevOps/backups/{{ backup_timestamp }}/R3.cfg admin@R3:
+
+          ================================================================================
+        dest: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}/README.txt"
+        mode: '0644'
+
+    - name: List backup files
+      shell: ls -lh ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/*.cfg
+      register: backup_list
+
+    - name: Display backup summary
+      debug:
+        msg:
+          - "========================================================"
+          - "✅ BACKUP COMPLETE"
+          - "========================================================"
+          - "Timestamp: {{ backup_timestamp }}"
+          - "Location: ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/"
+          - ""
+          - "Devices: 5"
+          - "Files: {{ backup_files.matched }}"
+          - "Size: {{ backup_size.stdout.split()[0] }}"
+          - ""
+          - "✓ Running configs saved to startup-config"
+          - "✓ All configs backed up as .cfg files"
+          - "========================================================"
+
+    - name: Display file list
+      debug:
+        var: backup_list.stdout_lines
