@@ -1,0 +1,18 @@
+---
+- name: Show CDP Neighbors
+  hosts: all
+  gather_facts: no
+  vars_files:
+  - ../group_vars/all/vault.yml
+
+  tasks:
+    - name: Retrieve CDP Info
+      cisco.ios.ios_command:
+        commands:
+          - show cdp neighbor
+      register: cdp
+
+    - name: Display Interface Brief
+      debug:
+        var: cdp.stdout_lines
+
