@@ -1,0 +1,15 @@
+{% if vlans is defined %}
+    {% for vlan in vlans %}
+    vlan {{ vlan.id_1 }}
+    vlan {{ vlan.id_2 }}
+    {% endfor %}
+{% endif %}
+!
+{% for interface in interfaces %}
+interface {{ interface.name }}
+    {% if interface.vlan_id is defined %}
+    switchport mode access
+    switchport access vlan {{ interface.vlan_id }}
+    {% endif %}
+no shut
+{% endfor %}

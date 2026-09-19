@@ -1,0 +1,32 @@
+---
+- name: Show Interface & Running Configurations
+  hosts: all
+  gather_facts: no
+  vars_files:
+  - ../group_vars/all/vault.yml
+
+  tasks:
+    - name: Retrieve Interface Brief
+      cisco.ios.ios_command:
+        commands:
+          - show ip int br
+      register: int_br
+
+
+    - name: Wait for save to complete
+      pause:
+        seconds: 5
+
+    - name: Retrieve running-config
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: running_config
+
+    - name: Display Interface Brief
+      debug:
+        var: int_br.stdout_lines
+
+    - name: Display Interface running-config
+      debug:
+        var: running_config.stdout_lines

@@ -1,0 +1,8 @@
+---
+interfaces:
+  - {name: loopback 0, ip_address: 3.3.3.3, subnet_mask: 255.255.255.255}
+  - {name: Gig 0/1, ip_address: 192.168.1.3, subnet_mask: 255.255.255.0}
+
+networks:
+  - subnet_1: 192.168.1.0
+    subnet_2: 3.3.3.3

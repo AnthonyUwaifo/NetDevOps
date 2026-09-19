@@ -1,0 +1,40 @@
+---
+- name: Configuring OSPF
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Deactivate Interface
+      cisco.ios.ios_config:
+        src: ../templates/delete.j2
+        
+    - name: Wait For Teardown
+      pause:
+        seconds: 7
+
+    - name: Retrieve OSPF Adjacency
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_neighbor
+
+    - name: Display OSPF Adjacency
+      debug:
+        var: ospf_neighbor.stdout_lines
+
+
+    - name: Retrieve BGP Adjacency
+      cisco.ios.ios_command:
+        commands:
+          - show ip bgp summary
+      register: bgp_summ
+
+    - name: Display BGP Adjacency
+      debug:
+        var: bgp_summ.stdout_lines
+
+
+
+
+
+

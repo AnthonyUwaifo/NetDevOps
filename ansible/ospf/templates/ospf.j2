@@ -1,0 +1,13 @@
+{% for interface in interfaces %}
+interface {{ interface.name }}
+    ip address {{ interface.ip_address }} {{ interface.subnet_mask }}
+    no shut
+{% endfor %}
+!
+{% for network in networks %}
+router ospf 1
+    router-id {{ network.subnet_2 }}
+    network {{ network.subnet_1 }} 0.0.0.255 area 0
+    network {{ network.subnet_2 }} 0.0.0.0 area 0
+{% endfor %}
+

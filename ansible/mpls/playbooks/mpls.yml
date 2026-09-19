@@ -1,0 +1,81 @@
+---
+- name: Configuring MPLS
+  hosts: routers
+  gather_facts: no
+  vars_files:
+  - ../group_vars/all/vault.yml
+
+  tasks:
+    - name: Configure MPLS CORE
+      cisco.ios.ios_config:
+        src: ../templates/mpls.j2
+      
+    - name: Wait for adjacency to complete
+      pause:
+        seconds: 120
+
+
+    - name: Retrieve OSPF Adjacency
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_neighbor
+
+
+    - name: Display OSPF Adjacency
+      debug:
+        var: ospf_neighbor.stdout_lines
+
+
+- name: Configuring VLANs
+  hosts: customer_prem
+  gather_facts: no
+  vars_files:
+  - ../group_vars/all/vault.yml
+
+  tasks:
+    - name: Configure VLANs & Assign Interfaces
+      cisco.ios.ios_config:
+        src: ../templates/vlans.j2
+      
+    - name: Wait for adjacency to complete
+      pause:
+        seconds: 120
+    
+    - name: Retrieve VLANs
+      cisco.ios.ios_command:
+        commands:
+          - show vlan br
+      register: vlan_br
+
+    - name: Display VLANs
+      debug:
+        var: vlan_br.stdout_lines
+
+
+- name: BGP/VPNv4 Checks (edge only)
+  hosts: edge
+  gather_facts: no
+  vars_files:
+    - ../group_vars/all/vault.yml
+
+  tasks:
+    - name: Retrieve BGP Adjacency
+      cisco.ios.ios_command:
+        commands:
+          - show ip bgp neighbor
+      register: bgp_neighbor
+
+    - name: Display BGP Adjacency
+      debug:
+        var: bgp_neighbor.stdout_lines
+
+    - name: Retrieve VPNv4 Summary
+      cisco.ios.ios_command:
+        commands:
+          - show bgp vpnv4 unicast all summary
+      register: vpnv4
+
+    - name: Display VPNv4 Summary
+      debug:
+        var: vpnv4.stdout_lines

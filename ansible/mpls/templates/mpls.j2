@@ -1,0 +1,54 @@
+{% for interface in interfaces %}
+interface {{ interface.name }}
+no shut
+    {% if interface.encapsulation is defined %}
+        encapsulation {{ interface.encapsulation.type }} {{ interface.encapsulation.vlan_id }}
+    {% endif %}
+    {% if interface.vrf is defined %}
+        ip vrf forwarding {{ interface.vrf }}
+    {% endif %}
+    ip address {{ interface.ip_address }} {{ interface.subnet_mask }}
+    {% if interface.vrf is not defined and 'loopback' not in interface.name.lower() %}
+        ip ospf network point-to-point
+    {% endif %}
+{% endfor %}
+!
+router ospf 1
+mpls ldp autoconfig
+passive-interface loopback0 
+{% for network in networks %}
+    network {{ network.subnet_1 }} 0.0.0.0 area 0
+    network {{ network.subnet_2 }} 0.0.0.3 area 0
+    network {{ network.subnet_3 }} 0.0.0.3 area 0
+    {% if network.subnet_4 is defined %}
+        network {{ network.subnet_4 }} 0.0.0.3 area 0
+    {% endif %}
+    {% if network.subnet_5 is defined %}
+        network {{ network.subnet_5 }} 0.0.0.3 area 0
+    {% endif %}
+{% endfor %}
+!
+{% if vrfs is defined %}
+{% for vrf in vrfs %}
+    ip vrf {{ vrf.name }}
+    rd {{ vrf.rd }}
+    route-target import {{ vrf.route_import }}
+    route-target export {{ vrf.route_export }}
+{% endfor %}
+{% endif %}
+!
+{% if neighbors is defined %}
+router bgp 65450
+    {% for neighbor in neighbors %}
+        neighbor {{ neighbor.neighbor_address }} remote-as {{ neighbor.remote_as }}
+        neighbor {{ neighbor.neighbor_address }} send-community extended
+        neighbor {{ neighbor.neighbor_address }} update-source loopback0
+    {% endfor %}
+    address-family vpnv4
+    {% for neighbor in neighbors %}
+        neighbor {{ neighbor.neighbor_address }} send-community extended
+        neighbor {{ neighbor.neighbor_address }} activate
+    {% endfor %}
+{% endif %}
+!
+

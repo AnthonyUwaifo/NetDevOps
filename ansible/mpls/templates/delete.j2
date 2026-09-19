@@ -1,0 +1,37 @@
+!
+no router ospf 1
+!
+{% if neighbors is defined %}
+no router bgp 65450
+!
+{% endif %}
+
+{% for interface in interfaces %}
+{% if interface.encapsulation is defined %}
+no interface {{ interface.name }}
+!
+{% endif %}
+{% endfor %}
+
+{% for interface in interfaces %}
+{% if interface.encapsulation is not defined %}
+interface {{ interface.name }}
+    no ip address
+    {% if interface.vrf is defined %}
+    no ip vrf forwarding {{ interface.vrf }}
+    {% endif %}
+    {% if 'loopback' not in interface.name.lower() %}
+    no ip ospf network point-to-point
+    {% endif %}
+    shutdown
+exit
+!
+{% endif %}
+{% endfor %}
+
+{% if vrfs is defined %}
+{% for vrf in vrfs %}
+no ip vrf {{ vrf.name }}
+!
+{% endfor %}
+{% endif %}

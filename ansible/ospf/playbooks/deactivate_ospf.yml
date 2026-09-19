@@ -1,0 +1,36 @@
+---
+- name: Configuring OSPF
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Deactivate Interface
+      cisco.ios.ios_config:
+        lines:
+          - no ip address
+          - shut
+        parents: interface GigabitEthernet0/1
+
+    - name: Deactivate OSPF
+      cisco.ios.ios_config:
+        lines:
+          - no router ospf 1
+
+    - name: Wait For Teardown
+      pause:
+        seconds: 7
+
+    - name: Retrieve OSPF Adjacency
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_neighbor
+
+    - name: Display OSPF Adjacency
+      debug:
+        var: ospf_neighbor.stdout_lines
+
+
+
+
+

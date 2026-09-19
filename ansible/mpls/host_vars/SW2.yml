@@ -1,0 +1,10 @@
+---
+interfaces:
+  - {name: Gig 0/1, vlan_id: 10}
+  - {name: Gig 0/2, vlan_id: 20}
+
+
+vlans:
+  - id_1: 10
+    id_2: 20
+

@@ -1,0 +1,19 @@
+---
+interfaces:
+  - {name: loopback 0, ip_address: 5.5.5.5, subnet_mask: 255.255.255.255}
+  - {name: Gig 0/1, ip_address: 192.168.25.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 0/2, ip_address: 192.168.35.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 0/3.10, ip_address: 172.16.1.1, subnet_mask: 255.255.255.0, vrf: CUST-A, encapsulation: {type: dot1Q, vlan_id: 10}}
+  - {name: Gig 0/3.20, ip_address: 172.16.2.1, subnet_mask: 255.255.255.0, vrf: CUST-B, encapsulation: {type: dot1Q, vlan_id: 20}}
+
+networks:
+  - subnet_1: 5.5.5.5
+    subnet_2: 192.168.25.0
+    subnet_3: 192.168.35.0
+
+vrfs:
+  - {name: CUST-A, rd: "1:1", route_import: "1:1", route_export: "1:1"}
+  - {name: CUST-B, rd: "2:2", route_import: "2:2", route_export: "2:2"}
+
+neighbors:
+  - {neighbor_address: 4.4.4.4, remote_as: 65450}

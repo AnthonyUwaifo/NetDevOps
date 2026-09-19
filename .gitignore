@@ -1,0 +1,15 @@
+# Python virtual environment
+.venv/
+
+# Vault secrets — never commit the plaintext key
+**/.vault_pass
+
+# Router config backups (may contain internal addressing/SNMP strings)
+**/backups/
+
+# Ansible retry files
+*.retry
+
+# Editor/OS cruft
+*.swp
+.DS_Store
