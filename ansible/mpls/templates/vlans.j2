@@ -13,3 +13,10 @@ interface {{ interface.name }}
     {% endif %}
 no shut
 {% endfor %}
+!
+{% for trunk in trunks %}
+interface {{ trunk.name }}
+switchport trunk encapsulation dot1q
+switchport mode trunk
+no shut
+{% endfor %}

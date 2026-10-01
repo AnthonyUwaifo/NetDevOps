@@ -6,23 +6,23 @@ all:
         core:
           hosts:
             R1:
-              ansible_host: 10.175.2.101
+              ansible_host: 172.16.92.101
             R2:
-              ansible_host: 10.175.2.102
+              ansible_host: 172.16.92.102
             R3:
-              ansible_host: 10.175.2.103
+              ansible_host: 172.16.92.103
         edge:
           hosts:
             R4:
-              ansible_host: 10.175.2.104
+              ansible_host: 172.16.92.104
             R5:
-              ansible_host: 10.175.2.105
+              ansible_host: 172.16.92.105
     switches:
       children:
         customer_prem:
           hosts:
             SW1:
-              ansible_host: 10.175.2.201
+              ansible_host: 172.16.92.201
             SW2:
-              ansible_host: 10.175.2.202
+              ansible_host: 172.16.92.202
 

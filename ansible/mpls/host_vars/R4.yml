@@ -1,10 +1,11 @@
 ---
 interfaces:
   - {name: loopback 0, ip_address: 4.4.4.4, subnet_mask: 255.255.255.255}
-  - {name: Gig 0/1, ip_address: 192.168.14.2, subnet_mask: 255.255.255.252}
-  - {name: Gig 0/2, ip_address: 192.168.34.2, subnet_mask: 255.255.255.252}
-  - {name: Gig 0/3.10, ip_address: 172.16.1.1, subnet_mask: 255.255.255.0, vrf: CUST-A, encapsulation: {type: dot1Q, vlan_id: 10}}
-  - {name: Gig 0/3.20, ip_address: 172.16.2.1, subnet_mask: 255.255.255.0, vrf: CUST-B, encapsulation: {type: dot1Q, vlan_id: 20}}
+  - {name: Gig 1/0, ip_address: 192.168.14.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 2/0, ip_address: 192.168.34.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 3/0}
+  - {name: Gig 3/0.10, ip_address: 172.16.41.1, subnet_mask: 255.255.255.0, vrf: CUST-A, encapsulation: {type: dot1Q, vlan_id: 10}}
+  - {name: Gig 3/0.20, ip_address: 172.16.42.1, subnet_mask: 255.255.255.0, vrf: CUST-B, encapsulation: {type: dot1Q, vlan_id: 20}}
 
 networks:
   - subnet_1: 4.4.4.4

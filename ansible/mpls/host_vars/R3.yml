@@ -1,10 +1,10 @@
 ---
 interfaces:
   - {name: loopback 0, ip_address: 3.3.3.3, subnet_mask: 255.255.255.255}
-  - {name: Gig 0/1, ip_address: 192.168.35.1, subnet_mask: 255.255.255.252}
-  - {name: Gig 0/2, ip_address: 192.168.34.1, subnet_mask: 255.255.255.252}
-  - {name: Gig 0/3, ip_address: 192.168.13.2, subnet_mask: 255.255.255.252}
-  - {name: Gig 0/4, ip_address: 192.168.23.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 1/0, ip_address: 192.168.13.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 2/0, ip_address: 192.168.23.2, subnet_mask: 255.255.255.252}
+  - {name: Gig 3/0, ip_address: 192.168.35.1, subnet_mask: 255.255.255.252}
+  - {name: Gig 4/0, ip_address: 192.168.34.1, subnet_mask: 255.255.255.252}
 
 
 networks:

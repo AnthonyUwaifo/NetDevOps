@@ -34,13 +34,13 @@
   - ../group_vars/all/vault.yml
 
   tasks:
-    - name: Configure VLANs & Assign Interfaces
+    - name: Configure VLANs, Trunks & Assign Interfaces
       cisco.ios.ios_config:
         src: ../templates/vlans.j2
       
     - name: Wait for adjacency to complete
       pause:
-        seconds: 120
+        seconds: 30
     
     - name: Retrieve VLANs
       cisco.ios.ios_command:
@@ -51,6 +51,16 @@
     - name: Display VLANs
       debug:
         var: vlan_br.stdout_lines
+
+    - name: Retrieve Trunks
+      cisco.ios.ios_command:
+        commands:
+          - show interface trunk
+      register: trunk
+
+    - name: Display Trunks
+      debug:
+        var: trunk.stdout_lines
 
 
 - name: BGP/VPNv4 Checks (edge only)

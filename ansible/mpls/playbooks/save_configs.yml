@@ -6,11 +6,10 @@
     - name: Set backup timestamp
       set_fact:
         backup_timestamp: "{{ ansible_date_time.date }}"
-        #backup_datetime: "{{ ansible_date_time.iso8601 }}"
 
     - name: Create backup directory
       file:
-        path: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}"
+        path: "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}"
         state: directory
         mode: '0755'
 
@@ -18,7 +17,7 @@
   hosts: all
   gather_facts: no
   vars_files:
-  - ../group_vars/all/vault.yml
+    - ../group_vars/all/vault.yml
 
   tasks:
     - name: Get backup timestamp from localhost
@@ -28,8 +27,9 @@
     - name: Save running-config to startup-config
       cisco.ios.ios_command:
         commands:
-          - write memory
-
+          - command: write memory
+            prompt: 'Overwrite the previous NVRAM configuration\?'
+            answer: "\r"
 
     - name: Wait for save to complete
       pause:
@@ -45,7 +45,7 @@
       delegate_to: localhost
       copy:
         content: "{{ running_config.stdout[0] }}"
-        dest: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}/{{ inventory_hostname }}.cfg"
+        dest: "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/{{ inventory_hostname }}.cfg"
         mode: '0644'
 
     - name: Display backup status
@@ -59,12 +59,12 @@
   tasks:
     - name: Count backup files
       find:
-        paths: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}"
+        paths: "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}"
         patterns: "*.cfg"
       register: backup_files
 
     - name: Get backup directory size
-      shell: du -sh ~/NetDevOps/ansible/backups/{{ backup_timestamp }}
+      shell: du -sh "{{ ansible_env.HOME }}/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}"
       register: backup_size
 
     - name: Create backup inventory file
@@ -74,19 +74,21 @@
           NETWORK CONFIGURATION BACKUP
           ================================================================================
           Backup Timestamp: {{ backup_timestamp }}
-          Backup Directory: ~/NetDevOps/backups/{{ backup_timestamp }}/
+          Backup Directory: ~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/
 
           DEVICES BACKED UP:
           ==================
-          R1.cfg (10.175.2.1)
-          R2.cfg (10.175.2.2)
-          R3.cfg (10.175.2.3)
-          R4.cfg (10.175.2.4)
-          R5.cfg (10.175.2.5)
+          R1.cfg (172.16.92.101)
+          R2.cfg (172.16.92.102)
+          R3.cfg (172.16.92.103)
+          R4.cfg (172.16.92.104)
+          R5.cfg (172.16.92.105)
+          SW1.cfg (172.16.92.201)
+          SW2.cfg (172.16.92.202)
 
           SUMMARY:
           ========
-          Total Devices: 5
+          Total Devices: 7
           Total Files: {{ backup_files.matched }}
           Backup Size: {{ backup_size.stdout.split()[0] }}
 
@@ -99,20 +101,21 @@
           USAGE:
           ======
           View a config:
-            cat ~/NetDevOps/ansbile/backups/{{ backup_timestamp }}/R3.cfg
+            cat "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/R3.cfg"
 
           Compare configs:
-            diff ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/R3.cfg                  ~/NetDevOps/ansible/backups/PREVIOUS_BACKUP/R3.cfg
+            diff "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/R3.cfg" \
+                 "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/PREVIOUS_BACKUP/R3.cfg"
 
           Restore (manual):
-            scp ~/NetDevOps/backups/{{ backup_timestamp }}/R3.cfg admin@R3:
+            scp "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/R3.cfg" admin@R3:
 
           ================================================================================
-        dest: "~/NetDevOps/ansible/backups/{{ backup_timestamp }}/README.txt"
+        dest: "~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/README.txt"
         mode: '0644'
 
     - name: List backup files
-      shell: ls -lh ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/*.cfg
+      shell: ls -lh "{{ ansible_env.HOME }}/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}"/*.cfg
       register: backup_list
 
     - name: Display backup summary
@@ -122,9 +125,9 @@
           - "✅ BACKUP COMPLETE"
           - "========================================================"
           - "Timestamp: {{ backup_timestamp }}"
-          - "Location: ~/NetDevOps/ansible/backups/{{ backup_timestamp }}/"
+          - "Location: ~/Desktop/Personal Dev/Network Automation and Cloud/Projects/NetDevOps/ansible/backups/{{ backup_timestamp }}/"
           - ""
-          - "Devices: 5"
+          - "Devices: 7"
           - "Files: {{ backup_files.matched }}"
           - "Size: {{ backup_size.stdout.split()[0] }}"
           - ""
